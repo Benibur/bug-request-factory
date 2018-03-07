@@ -1,5 +1,5 @@
 const { BaseKonnector, requestFactory, saveFiles, addData } = require('cozy-konnector-libs')
-const request = requestFactory({ cheerio: true, jar:true })
+let request = requestFactory({ cheerio: true, jar:true})
 const Promise = require('bluebird')
 const fs = require('fs')
 const path = require('path')
@@ -25,17 +25,26 @@ function start (fields) {
   })
 
   .then($ => {
+    // Other way using saveFiles
+    // const files = [
+    //   {
+    //     fileurl: 'http://velsvoyages.com/suivi/10631/14521-20180225-234440-0706.jpg',
+    //     filename: 'photo1.jpg'
+    //   }
+    // ]
+
+    // return saveFiles(files, fields)
+
+
     const imgUrl = 'http://velsvoyages.com/suivi/10631/14521-20180225-234440-0706.jpg'
     const filename = path.basename(imgUrl)
 
     /* ________________________________________________________________________________________________ */
     /* TEST 1 OK : on passe par une requête regénérée via request-promise plutot que via requestFactory */
+    request = requestFactory({cheerio: false})
     return requestOri({
       uri:imgUrl,
-      encoding:null,
-      cheerio:false,
-      json:false,
-      jar:true,
+      encoding: null,
       resolveWithFullResponse:true
     })
     .then(resp=>{
@@ -45,10 +54,7 @@ function start (fields) {
       /* TEST 2 NOK : on passe par une requête via requestFactory - tout paramètres identiques  */
       return request({
         uri:imgUrl,
-        encoding:null,
-        cheerio:false,
-        json:false,
-        jar:true,
+        encoding: null,
         resolveWithFullResponse:true
       })
       .then(resp=>{
